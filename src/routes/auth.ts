@@ -1,51 +1,57 @@
-import { Router, Request, Response, NextFunction } from 'express'
+import { Router } from 'express'
 import { getCustomRepository } from 'typeorm'
-import * as yup from 'yup'
+import passport from 'passport'
+import { OAuth2Strategy as GoogleStrategy } from 'passport-google-oauth'
 import { UserRepository } from '../repository'
 import * as crypto from '../lib/crypto'
 
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_AUTH_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_AUTH_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_AUTH_CALLBACK_URL,
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const email = profile.emails[0]?.value ?? ''
+        if (!email) {
+          return done('E-Mail not found')
+        }
+
+        const userRepository = getCustomRepository(UserRepository)
+        let user = await userRepository.findOne({
+          where: { email },
+          select: ['id'],
+        })
+
+        if (!user) {
+          user = await userRepository.save({ email, name: profile.displayName })
+        }
+
+        done(null, user)
+      } catch (e) {
+        done(e)
+      }
+    }
+  )
+)
+
 const router = Router()
 
-type Login = {
-  email: string
-  password: string
-}
+router.get('/google', passport.authenticate('google', { scope: ['email', 'profile'] }))
 
-const loginSchema = yup.object<Login>({
-  email: yup
-    .string()
-    .required('Email is required')
-    .email('Not valid email'),
-  password: yup.string().required('Password is required'),
-})
-
-router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const params = await loginSchema.validate(req.body, { stripUnknown: true })
-
-    const userRepository = getCustomRepository(UserRepository)
-    const user = await userRepository.findOne({
-      where: { email: params.email },
-      select: ['id', 'password'],
-    })
-
-    if (!user) {
-      res.sendStatus(401)
-      return
-    }
-
-    const authenticated = await crypto.verify(params.password, user.password)
-    if (!authenticated) {
-      res.sendStatus(401)
-      return
-    }
-
+router.get('/google/connect', (req, res, next) =>
+  passport.authenticate('google', async (err, user) => {
     const accessToken = await crypto.generateToken({ userId: user.id })
-    res.json({ accessToken })
-  } catch (e) {
-    next(e)
-  }
-})
+    res.cookie('authorization', accessToken, {
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+      path: '/',
+      secure: false,
+    })
+    res.redirect('/')
+  })(req, res, next)
+)
 
 router.get('/me', async (req, res, next) => {
   try {

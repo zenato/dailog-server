@@ -1,5 +1,4 @@
 import pg from 'pg'
-import { Request, Response, NextFunction } from 'express'
 import { ConnectionOptions, createConnection, getConnectionManager } from 'typeorm'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
 import { User, Todo } from './entity'
@@ -13,7 +12,7 @@ const defaultConfig: ConnectionOptions = {
   name: DEFAULT_DB_NAME,
   type: 'postgres',
   ssl: false,
-  synchronize: true,
+  synchronize: false,
   logging: process.env.NODE_ENV !== 'production',
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT),
@@ -26,13 +25,8 @@ const defaultConfig: ConnectionOptions = {
 
 const connectionManager = getConnectionManager()
 
-export default async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    if (!connectionManager.has(DEFAULT_DB_NAME)) {
-      await createConnection(defaultConfig)
-    }
-    next()
-  } catch (e) {
-    next(e)
+export default async () => {
+  if (!connectionManager.has(DEFAULT_DB_NAME)) {
+    await createConnection(defaultConfig)
   }
 }

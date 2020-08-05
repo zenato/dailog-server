@@ -3,7 +3,7 @@ import { ApolloServer } from 'apollo-server-express'
 import cors from 'cors'
 import bodyParser from 'body-parser'
 import cookieParser from 'cookie-parser'
-import database from './database'
+import passport from 'passport'
 import routes from './routes'
 import schema from './graphql/schema'
 import context from './graphql/context'
@@ -14,7 +14,7 @@ app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
-app.use(database)
+app.use(passport.initialize())
 app.use(routes)
 
 const server = new ApolloServer({
