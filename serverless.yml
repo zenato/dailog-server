@@ -1,0 +1,65 @@
+service:
+  name: dailog-server
+
+# Add the serverless-webpack plugin
+plugins:
+  - serverless-webpack
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: ap-northeast-2
+  stage: dev
+
+  environment:
+    SECRET_KEY: ${ssm:/dailog/secret-key}
+    TOKEN_ISSUER: ${ssm:/dailog/token-issuer}
+    DB_HOST: ${ssm:/dailog/db-host}
+    DB_PORT: ${ssm:/dailog/db-port}
+    DB_USER: ${ssm:/dailog/db-user}
+    DB_PASSWORD: ${ssm:/dailog/db-password}
+    DB_DATABASE: ${ssm:/dailog/db-database}
+    GOOGLE_AUTH_CLIENT_ID: ${ssm:/dailog/google-auth-client-id}
+    GOOGLE_AUTH_CLIENT_SECRET: ${ssm:/dailog/google-auth-client-secret}
+    GOOGLE_AUTH_CALLBACK_URL: ${ssm:/dailog/google-auth-callback-url}
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - ssm:GetParameter
+        - ssm:GetParameters
+        - ssm:GetParametersByPath
+      Resource:
+        Fn::Join:
+          - ''
+          -
+            - 'arn:aws:ssm:'
+            - Ref: AWS::Region
+            - ':'
+            - Ref: AWS::AccountId
+            - ':parameter/dailog/*'
+
+  vpc:
+    securityGroupIds:
+      - sg-a5610ec6
+    subnetIds:
+      - subnet-150e3d59
+      - subnet-5879c123 
+      - subnet-2c939270
+      - subnet-a0f738cb
+
+functions:
+  app:
+    handler: src/serverless.handler
+    events:
+      - http:
+          path: /
+          method: ANY
+      - http:
+          path: /{any+}
+          method: ANY
+
+custom:
+  webpack:
+    includeModules: true

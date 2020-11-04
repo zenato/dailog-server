@@ -1,21 +1,27 @@
+# Logs
 logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# macOS desktop services store
 .DS_Store
 
-node_modules/
+# Pacakge directories
+node_modules
 
+# Typescript output
 dist
 
+# IDE
 .idea
 .vscode
 
-.serverless
-
+# Environment
 .env
 .env.production
 
-data
+# Deploymen
+.serverless
+.webpack

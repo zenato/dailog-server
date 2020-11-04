@@ -25,8 +25,14 @@ const defaultConfig: ConnectionOptions = {
 
 const connectionManager = getConnectionManager()
 
-export default async () => {
+export const initialize = async () => {
   if (!connectionManager.has(DEFAULT_DB_NAME)) {
     await createConnection(defaultConfig)
   }
+}
+
+export const destroy = async () => {
+  try {
+    await connectionManager.get(DEFAULT_DB_NAME).close()
+  } catch (e) {}
 }

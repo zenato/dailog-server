@@ -41,6 +41,8 @@
     "passport": "^0.4.1",
     "passport-google-oauth": "^2.0.0",
     "pg": "^8.4.1",
+    "serverless-http": "^2.6.0",
+    "source-map-support": "^0.5.19",
     "typeorm": "^0.2.28",
     "typeorm-naming-strategies": "^1.1.0",
     "yup": "^0.28.3"
@@ -63,11 +65,17 @@
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-prettier": "^3.1.2",
+    "fork-ts-checker-webpack-plugin": "^5.2.1",
     "husky": "^4.2.3",
     "lint-staged": "^10.0.8",
     "prettier": "^1.19.1",
-    "ts-node": "^8.6.2",
+    "serverless-offline": "^6.8.0",
+    "serverless-webpack": "^5.3.5",
+    "ts-loader": "^8.0.9",
+    "ts-node": "^9.0.0",
     "ts-node-dev": "^1.0.0-pre.44",
-    "typescript": "^3.8.2"
+    "typescript": "^3.8.2",
+    "webpack": "^5.4.0",
+    "webpack-node-externals": "^2.5.2"
   }
 }

@@ -24,14 +24,9 @@ const server = new ApolloServer({
 })
 server.applyMiddleware({ app })
 
-console.log(`graph path : ${server.graphqlPath}`)
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// Handle uncatched errors
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err)
-  if (err.name === 'ValidationError') {
-    return res.status(400).json({ errors: (err as any).errors || [] })
-  }
   res.sendStatus(500)
 })
 
