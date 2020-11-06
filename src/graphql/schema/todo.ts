@@ -19,7 +19,7 @@ export const typeDef = gql`
   }
 
   extend type Query {
-    todosByMonthly(year: Int!, month: Int!): [Todo]
+    todosByMonthly(date: Date!): [Todo]
     todosByDate(date: Date!): [Todo]
   }
 
@@ -33,10 +33,7 @@ export const typeDef = gql`
 export const resolvers: IResolvers = {
   Query: {
     todosByMonthly: authenticated(async (parent, args, context) => {
-      const startDate = dayjs()
-        .set('year', args.year)
-        .set('month', args.month - 1)
-        .startOf('month')
+      const startDate = dayjs(args.date).startOf('month')
       const endDate = startDate.endOf('month')
       const todoRepository = getCustomRepository(TodoRepository)
       const todos = await todoRepository.findByDuration(
@@ -49,7 +46,7 @@ export const resolvers: IResolvers = {
     todosByDate: authenticated(async (parent, args, context) => {
       const todoRepository = getCustomRepository(TodoRepository)
       const todos = await todoRepository.find({
-        where: { user: context.user, date: args.date },
+        where: { user: context.user, date: new Date(args.date) },
         order: { id: 'ASC' },
       })
       return todos
