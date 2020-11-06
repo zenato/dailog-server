@@ -16,7 +16,7 @@ passport.use(
       try {
         const email = profile.emails[0]?.value ?? ''
         if (!email) {
-          return done('E-Mail not found')
+          throw Error('E-Mail not found')
         }
 
         const userRepository = getCustomRepository(UserRepository)
@@ -26,7 +26,13 @@ passport.use(
         })
 
         if (!user) {
-          user = await userRepository.save({ email, name: profile.displayName })
+          const now = new Date()
+          user = await userRepository.save({
+            email,
+            name: profile.displayName,
+            createdAt: now,
+            updatedAt: now,
+          })
         }
 
         done(null, user)
@@ -43,6 +49,11 @@ router.get('/google', passport.authenticate('google', { scope: ['email', 'profil
 
 router.get('/google/connect', (req, res, next) =>
   passport.authenticate('google', async (err, user) => {
+    if (err) {
+      next(err)
+      return
+    }
+
     const accessToken = await crypto.generateToken({ userId: user.id })
     res.cookie('authorization', accessToken, {
       maxAge: 1000 * 60 * 60 * 24 * 30,
