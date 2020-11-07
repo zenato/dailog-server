@@ -1,5 +1,4 @@
-service:
-  name: dailog-server
+service: dailog-server
 
 # Add the serverless-webpack plugin
 plugins:
@@ -45,7 +44,7 @@ provider:
       - sg-a5610ec6
     subnetIds:
       - subnet-150e3d59
-      - subnet-5879c123 
+      - subnet-5879c123
       - subnet-2c939270
       - subnet-a0f738cb
 
