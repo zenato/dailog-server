@@ -34,7 +34,7 @@ export const resolvers: IResolvers = {
   Query: {
     todosByMonthly: authenticated(async (parent, args, context) => {
       const startDate = dayjs(args.date)
-      const endDate = startDate.add(1, 'month').add(1, 'millisecond')
+      const endDate = startDate.add(1, 'month').add(-1, 'millisecond')
       const todoRepository = getCustomRepository(TodoRepository)
       const todos = await todoRepository.findByDuration(
         context.user,
