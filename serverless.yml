@@ -38,6 +38,12 @@ provider:
             - ':'
             - Ref: AWS::AccountId
             - ':parameter/dailog/*'
+    - Effect: Allow
+      Action:
+        - s3:*
+      Resource:
+        - "arn:aws:s3:::dailog"
+        - "arn:aws:s3:::dailog/*"
 
   vpc:
     securityGroupIds:

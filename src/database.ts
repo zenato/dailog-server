@@ -1,7 +1,7 @@
 import pg from 'pg'
 import { ConnectionOptions, createConnection, getConnectionManager } from 'typeorm'
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies'
-import { User, Todo } from './entity'
+import { User, UserImage, Todo } from './entity'
 
 // Parse integer field
 pg.defaults.parseInt8 = true
@@ -20,7 +20,7 @@ const defaultConfig: ConnectionOptions = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
   namingStrategy: new SnakeNamingStrategy(),
-  entities: [User, Todo],
+  entities: [User, UserImage, Todo],
 }
 
 const connectionManager = getConnectionManager()

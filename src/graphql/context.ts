@@ -1,7 +1,8 @@
 import { ExpressContext } from 'apollo-server-express/dist/ApolloServer'
-import { getRepository } from 'typeorm'
+import { Request } from 'express'
+import { getCustomRepository } from 'typeorm'
+import { UserRepository } from '../repository'
 import { User } from '../entity'
-import { decodeToken } from '../lib/crypto'
 
 export interface ApolloContext {
   user?: User
@@ -9,10 +10,10 @@ export interface ApolloContext {
 
 const context = async ({ req }: ExpressContext): Promise<ApolloContext> => {
   try {
-    const token = req.headers.authorization || req.cookies.authorization
-    if (token) {
-      const decoded: { userId: number } = await decodeToken(token)
-      const user = await getRepository(User).findOne(decoded.userId)
+    const token = (req as Request).headers.authorization || (req as Request).cookies.authorization
+    const repo = getCustomRepository(UserRepository)
+    const user = await repo.findByToken(token)
+    if (user) {
       return { user }
     }
     return {}
