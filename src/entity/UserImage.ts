@@ -24,11 +24,11 @@ export default class UserImage extends BaseEntity {
   @Column()
   type!: string
 
-  @Column({ name: 'created_at', select: false, update: false })
+  @Column({ name: 'created_at', type: 'timestamptz', select: false, update: false })
   @CreateDateColumn()
   createdAt!: Date
 
-  @Column({ name: 'updated_at', select: false })
+  @Column({ name: 'updated_at', type: 'timestamptz', select: false })
   @UpdateDateColumn()
   updatedAt!: Date
 

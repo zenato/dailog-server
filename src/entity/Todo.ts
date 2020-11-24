@@ -1,12 +1,21 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, JoinColumn } from 'typeorm'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  BaseEntity,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm'
 import User from './User'
 
 @Entity({ name: 'todos' })
 export default class Todo extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
-  @Column({ update: false })
+  @Column({ type: 'timestamptz', update: false })
   date: Date
 
   @Column()
@@ -18,4 +27,12 @@ export default class Todo extends BaseEntity {
   @ManyToOne(() => User, { nullable: false })
   @JoinColumn({ name: 'user_id' })
   user: User
+
+  @Column({ name: 'created_at', type: 'timestamptz', select: false, update: false })
+  @CreateDateColumn()
+  createdAt!: Date
+
+  @Column({ name: 'updated_at', type: 'timestamptz', select: false })
+  @UpdateDateColumn()
+  updatedAt!: Date
 }

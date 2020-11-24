@@ -1,9 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from 'typeorm'
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  BaseEntity,
+} from 'typeorm'
 
 @Entity({ name: 'users' })
 export default class User extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
   @Column()
   name: string
@@ -14,9 +21,11 @@ export default class User extends BaseEntity {
   @Column({ nullable: true })
   thumbnail: string
 
-  @Column({ name: 'created_at', select: false, update: false })
+  @Column({ name: 'created_at', type: 'timestamptz', select: false, update: false })
+  @CreateDateColumn()
   createdAt: Date
 
-  @Column({ name: 'updated_at', select: false })
+  @Column({ name: 'updated_at', type: 'timestamptz', select: false })
+  @UpdateDateColumn()
   updatedAt: Date
 }

@@ -33,45 +33,50 @@ export const typeDef = gql`
 export const resolvers: IResolvers = {
   Query: {
     todosByMonthly: authenticated(async (parent, args, context) => {
-      const startDate = dayjs(args.date)
-      const endDate = startDate.add(1, 'month').add(-1, 'millisecond')
       const todoRepository = getCustomRepository(TodoRepository)
       const todos = await todoRepository.findByDuration(
         context.user,
-        startDate.toDate(),
-        endDate.toDate()
+        args.date,
+        dayjs(args.date)
+          .add(1, 'month')
+          .add(-1, 'millisecond')
+          .toDate()
       )
       return todos
     }),
     todosByDate: authenticated(async (parent, args, context) => {
       const todoRepository = getCustomRepository(TodoRepository)
-      const todos = await todoRepository.find({
-        where: { user: context.user, date: new Date(args.date) },
-        order: { id: 'ASC' },
-      })
+      const todos = await todoRepository.findByDuration(
+        context.user,
+        args.date,
+        dayjs(args.date)
+          .add(1, 'day')
+          .add(-1, 'millisecond')
+          .toDate()
+      )
       return todos
     }),
   },
   Mutation: {
     addTodo: authenticated(async (parent: any, args: { input: Todo }, context) => {
       const todoRepository = getCustomRepository(TodoRepository)
-
       const todo = new Todo()
-      todoRepository.merge(todo, args.input, {
+      todoRepository.merge(todo, {
+        ...args.input,
         user: context.user,
         isDone: false,
       })
       return await todoRepository.save(todo)
     }),
     updateTodo: authenticated(
-      async (parent: any, args: { id: number; isDone: boolean }, context) => {
+      async (parent: any, args: { id: string; isDone: boolean }, context) => {
         const todoRepository = getCustomRepository(TodoRepository)
         const todo = await todoRepository.findOneOrFail({ user: context.user, id: args.id })
         todoRepository.merge(todo, { isDone: args.isDone })
         return await todoRepository.save(todo)
       }
     ),
-    deleteTodo: authenticated(async (parent: any, args: { id: number }, context) => {
+    deleteTodo: authenticated(async (parent: any, args: { id: string }, context) => {
       const todoRepository = getCustomRepository(TodoRepository)
       await todoRepository.delete({ user: context.user, id: args.id })
       return true

@@ -26,12 +26,9 @@ passport.use(
         })
 
         if (!user) {
-          const now = new Date()
           user = await userRepository.save({
             email,
             name: profile.displayName,
-            createdAt: now,
-            updatedAt: now,
           })
         }
 
