@@ -1,7 +1,7 @@
 {
   "name": "dailog-server",
   "description": "Dailog Server",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Yeongjin Lee <yeongjinnn@gmail.com>",
   "license": "MIT",
   "private": true,
