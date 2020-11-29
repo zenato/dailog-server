@@ -13,7 +13,7 @@ const authMiddleware: RequestHandler = async (req, res, next) => {
       req.user = user
       return next()
     }
-    res.sendStatus(403)
+    res.sendStatus(401)
   } catch (e) {
     next(e)
   }
