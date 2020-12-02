@@ -1,9 +1,9 @@
 import { gql, IResolvers } from 'apollo-server-express'
 import { getCustomRepository } from 'typeorm'
 import dayjs from 'dayjs'
-import { TodoRepository } from '../../repository'
+import { TodoRepository } from '~/repository'
+import { Todo } from '~/entity'
 import authenticated from '../authenticated'
-import { Todo } from '../../entity'
 
 export const typeDef = gql`
   type Todo {
