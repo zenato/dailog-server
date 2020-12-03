@@ -37,10 +37,7 @@ export const resolvers: IResolvers = {
       const todos = await todoRepository.findByDuration(
         context.user,
         args.date,
-        dayjs(args.date)
-          .add(1, 'month')
-          .add(-1, 'millisecond')
-          .toDate()
+        dayjs(args.date).add(1, 'month').add(-1, 'millisecond').toDate()
       )
       return todos
     }),
@@ -49,10 +46,7 @@ export const resolvers: IResolvers = {
       const todos = await todoRepository.findByDuration(
         context.user,
         args.date,
-        dayjs(args.date)
-          .add(1, 'day')
-          .add(-1, 'millisecond')
-          .toDate()
+        dayjs(args.date).add(1, 'day').add(-1, 'millisecond').toDate()
       )
       return todos
     }),
