@@ -7,7 +7,7 @@ import authenticated from '../authenticated'
 interface TodoInput {
   year: string
   month: string
-  day: string
+  date: string
   title: string
 }
 
@@ -22,12 +22,12 @@ export const typeDef = gql`
   input TodoInput {
     year: String!
     month: String!
-    day: String!
+    date: String!
     title: String
   }
 
   extend type Query {
-    todos(year: String!, month: String!, day: String): [Todo]
+    todos(year: String!, month: String!, date: String): [Todo]
   }
 
   extend type Mutation {
@@ -37,14 +37,14 @@ export const typeDef = gql`
   }
 `
 
-const parseDate = (timezone: string, year: string, month: string, day?: string) =>
-  dayjs.tz(`${year}-${month}-${day || '01'} 00:00:00.000`, timezone)
+const parseDate = (timezone: string, year: string, month: string, date?: string) =>
+  dayjs.tz(`${year}-${month}-${date || '01'} 00:00:00.000`, timezone)
 
 export const resolvers: IResolvers = {
   Query: {
-    todos: authenticated(async (parent, { year, month, day }, { user }) => {
-      const start = parseDate(user.timezone, year, month, day)
-      const end = start.add(1, day ? 'day' : 'month').add(-1, 'millisecond')
+    todos: authenticated(async (parent, { year, month, date }, { user }) => {
+      const start = parseDate(user.timezone, year, month, date)
+      const end = start.add(1, date ? 'day' : 'month').add(-1, 'millisecond')
 
       const repo = getCustomRepository(TodoRepository)
       const todos = await repo.findByDuration(user, start.toDate(), end.toDate())
@@ -53,12 +53,12 @@ export const resolvers: IResolvers = {
   },
   Mutation: {
     addTodo: authenticated(async (parent: any, args: { input: TodoInput }, { user }) => {
-      const { year, month, day, ...otherInput } = args.input
+      const { year, month, date, ...otherInput } = args.input
 
       const repo = getCustomRepository(TodoRepository)
       return await repo.save({
         ...otherInput,
-        date: parseDate(user.timezone, year, month, day).toDate(),
+        date: parseDate(user.timezone, year, month, date).toDate(),
         user,
         isDone: false,
       })
