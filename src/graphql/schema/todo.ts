@@ -1,9 +1,15 @@
 import { gql, IResolvers } from 'apollo-server-express'
 import { getCustomRepository } from 'typeorm'
-import dayjs from 'dayjs'
 import { TodoRepository } from '~/repository'
-import { Todo } from '~/entity'
+import dayjs from '~/lib/dayjs'
 import authenticated from '../authenticated'
+
+interface TodoInput {
+  year: string
+  month: string
+  day: string
+  title: string
+}
 
 export const typeDef = gql`
   type Todo {
@@ -14,13 +20,14 @@ export const typeDef = gql`
   }
 
   input TodoInput {
-    date: Date!
+    year: String!
+    month: String!
+    day: String!
     title: String
   }
 
   extend type Query {
-    todosByMonthly(date: Date!): [Todo]
-    todosByDate(date: Date!): [Todo]
+    todos(year: String!, month: String!, day: String): [Todo]
   }
 
   extend type Mutation {
@@ -30,49 +37,43 @@ export const typeDef = gql`
   }
 `
 
+const parseDate = (timezone: string, year: string, month: string, day?: string) =>
+  dayjs.tz(`${year}-${month}-${day || '01'} 00:00:00.000`, timezone)
+
 export const resolvers: IResolvers = {
   Query: {
-    todosByMonthly: authenticated(async (parent, args, context) => {
-      const todoRepository = getCustomRepository(TodoRepository)
-      const todos = await todoRepository.findByDuration(
-        context.user,
-        args.date,
-        dayjs(args.date).add(1, 'month').add(-1, 'millisecond').toDate()
-      )
-      return todos
-    }),
-    todosByDate: authenticated(async (parent, args, context) => {
-      const todoRepository = getCustomRepository(TodoRepository)
-      const todos = await todoRepository.findByDuration(
-        context.user,
-        args.date,
-        dayjs(args.date).add(1, 'day').add(-1, 'millisecond').toDate()
-      )
+    todos: authenticated(async (parent, { year, month, day }, { user }) => {
+      const start = parseDate(user.timezone, year, month, day)
+      const end = start.add(1, day ? 'day' : 'month').add(-1, 'millisecond')
+
+      const repo = getCustomRepository(TodoRepository)
+      const todos = await repo.findByDuration(user, start.toDate(), end.toDate())
       return todos
     }),
   },
   Mutation: {
-    addTodo: authenticated(async (parent: any, args: { input: Todo }, context) => {
-      const todoRepository = getCustomRepository(TodoRepository)
-      const todo = new Todo()
-      todoRepository.merge(todo, {
-        ...args.input,
-        user: context.user,
+    addTodo: authenticated(async (parent: any, args: { input: TodoInput }, { user }) => {
+      const { year, month, day, ...otherInput } = args.input
+
+      const repo = getCustomRepository(TodoRepository)
+      return await repo.save({
+        ...otherInput,
+        date: parseDate(user.timezone, year, month, day).toDate(),
+        user,
         isDone: false,
       })
-      return await todoRepository.save(todo)
     }),
     updateTodo: authenticated(
-      async (parent: any, args: { id: string; isDone: boolean }, context) => {
-        const todoRepository = getCustomRepository(TodoRepository)
-        const todo = await todoRepository.findOneOrFail({ user: context.user, id: args.id })
-        todoRepository.merge(todo, { isDone: args.isDone })
-        return await todoRepository.save(todo)
+      async (parent: any, args: { id: string; isDone: boolean }, { user }) => {
+        const repo = getCustomRepository(TodoRepository)
+        const todo = await repo.findOneOrFail({ user, id: args.id })
+        repo.merge(todo, { isDone: args.isDone })
+        return await repo.save(todo)
       }
     ),
-    deleteTodo: authenticated(async (parent: any, args: { id: string }, context) => {
-      const todoRepository = getCustomRepository(TodoRepository)
-      await todoRepository.delete({ user: context.user, id: args.id })
+    deleteTodo: authenticated(async (parent: any, args: { id: string }, { user }) => {
+      const repo = getCustomRepository(TodoRepository)
+      await repo.delete({ user, id: args.id })
       return true
     }),
   },

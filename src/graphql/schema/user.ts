@@ -8,6 +8,7 @@ export const typeDef = gql`
     id: ID!
     email: String
     name: String
+    timezone: String
     thumbnail: String
     createdAt: Date
     updatedAt: Date
@@ -19,6 +20,7 @@ export const typeDef = gql`
   extend type Mutation {
     updateProfileName(name: String!): User
     updateThumbnail(url: String): User
+    updateTimezone(tz: String!): User
   }
 `
 
@@ -31,12 +33,19 @@ export const resolvers: IResolvers = {
       if (!args.name) {
         throw new ApolloError('Name should not be empty', 'BAD_REQUEST')
       }
-      const userRepository = getCustomRepository(UserRepository)
-      return await userRepository.save(userRepository.merge(context.user, { name: args.name }))
+      const repo = getCustomRepository(UserRepository)
+      return await repo.save(repo.merge(context.user, { name: args.name }))
     }),
     updateThumbnail: authenticated(async (parent: any, args: { url: string }, context) => {
-      const userRepository = getCustomRepository(UserRepository)
-      return await userRepository.save(userRepository.merge(context.user, { thumbnail: args.url }))
+      const repo = getCustomRepository(UserRepository)
+      return await repo.save(repo.merge(context.user, { thumbnail: args.url }))
+    }),
+    updateTimezone: authenticated(async (parent: any, args: { timezone: string }, context) => {
+      if (!args.timezone) {
+        throw new ApolloError('Timezone should not be empty', 'BAD_REQUEST')
+      }
+      const repo = getCustomRepository(UserRepository)
+      return await repo.save(repo.merge(context.user, { name: args.timezone }))
     }),
   },
 }

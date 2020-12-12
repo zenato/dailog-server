@@ -21,6 +21,9 @@ export default class User extends BaseEntity {
   @Column({ nullable: true })
   thumbnail: string
 
+  @Column()
+  timezone: string
+
   @Column({ name: 'created_at', type: 'timestamptz', select: false, update: false })
   @CreateDateColumn()
   createdAt: Date

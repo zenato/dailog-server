@@ -29,6 +29,7 @@ passport.use(
           user = await userRepository.save({
             email,
             name: profile.displayName,
+            timezone: 'Asia/Seoul',
           })
         }
 
@@ -49,6 +50,13 @@ router.get('/google/connect', (req, res, next) =>
     if (err) {
       next(err)
       return
+    }
+
+    // Update timezone
+    if (req.cookies.tz) {
+      const repo = getCustomRepository(UserRepository)
+      await repo.save(repo.merge(user, { timezone: req.cookies.tz }))
+      res.clearCookie('timezone')
     }
 
     const accessToken = await crypto.generateToken({ userId: user.id })
