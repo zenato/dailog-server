@@ -20,7 +20,7 @@ export const typeDef = gql`
   extend type Mutation {
     updateProfileName(name: String!): User
     updateThumbnail(url: String): User
-    updateTimezone(tz: String!): User
+    updateTimezone(timezone: String!): User
   }
 `
 
@@ -45,7 +45,7 @@ export const resolvers: IResolvers = {
         throw new ApolloError('Timezone should not be empty', 'BAD_REQUEST')
       }
       const repo = getCustomRepository(UserRepository)
-      return await repo.save(repo.merge(context.user, { name: args.timezone }))
+      return await repo.save(repo.merge(context.user, { timezone: args.timezone }))
     }),
   },
 }
