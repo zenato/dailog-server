@@ -8,6 +8,8 @@ plugins:
 provider:
   name: aws
   runtime: nodejs12.x
+  apiGateway:
+    shouldStartNameWithService: true
   region: ap-northeast-2
   stage: ${opt:stage, 'dev'}
 
