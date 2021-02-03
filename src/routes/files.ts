@@ -4,7 +4,7 @@ import mime from 'mime-types'
 import AWS from 'aws-sdk'
 import { User, UserImage } from '../entity'
 
-const BUCKET_NAME = 'dailog'
+const BUCKET_NAME = 'dailog-data'
 
 const s3 = new AWS.S3({
   region: 'ap-northeast-2',

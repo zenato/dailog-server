@@ -42,17 +42,17 @@ provider:
       Action:
         - s3:*
       Resource:
-        - "arn:aws:s3:::dailog"
-        - "arn:aws:s3:::dailog/*"
+        - "arn:aws:s3:::dailog-data"
+        - "arn:aws:s3:::dailog-data/*"
 
   vpc:
     securityGroupIds:
-      - sg-a5610ec6
+      - sg-1506a36e
     subnetIds:
-      - subnet-150e3d59
-      - subnet-5879c123
-      - subnet-2c939270
-      - subnet-a0f738cb
+      - subnet-921aaef9
+      - subnet-2b33c674
+      - subnet-3dfa9b46
+      - subnet-46b2aa0a
 
 functions:
   app:
